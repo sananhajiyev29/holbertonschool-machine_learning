@@ -16,6 +16,8 @@ def hierarchy(df1, df2):
     df1_subset = df1[(df1.index >= 1417411980) & (df1.index <= 1417417980)]
     df2_subset = df2[(df2.index >= 1417411980) & (df2.index <= 1417417980)]
 
-    df_concat = pd.concat([df2_subset, df1_subset], keys=["bitstamp", "coinbase"])
+    df_concat = pd.concat(
+        [df2_subset, df1_subset], keys=["bitstamp", "coinbase"]
+    )
     df_concat = df_concat.reorder_levels([1, 0]).sort_index()
     return df_concat
