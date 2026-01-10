@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 def frequency():
     """
-    Plots a histogram of student grades.
+    Plots a histogram of student grades for Project A.
 
     - x-axis: Grades
     - y-axis: Number of Students
@@ -20,7 +20,6 @@ def frequency():
     np.random.seed(5)
     student_grades = np.random.normal(68, 15, 50)
 
-    # Use explicit integer bins
     bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
     plt.figure(figsize=(6.4, 4.8))
