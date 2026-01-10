@@ -8,7 +8,7 @@ index = __import__('10-index').index
 def hierarchy(df1, df2):
     """
     Index both DataFrames on Timestamp, select range of timestamps,
-    concatenate with keys, and sort in chronological order.
+    concatenate with keys, and sort the result chronologically.
     """
     df1 = index(df1)
     df2 = index(df2)
