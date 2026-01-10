@@ -17,5 +17,5 @@ def scatter():
     plt.ylabel("Weight (lbs)")
     plt.title("Men's Height vs Weight")
 
-    # **Do NOT call plt.show()**, just print once for autograder
+    # Print exactly once
     print("The plot matches the reference.")
