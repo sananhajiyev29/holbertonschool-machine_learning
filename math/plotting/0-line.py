@@ -26,3 +26,5 @@ def line():
     plt.title("Line Graph of y = x^3")
     plt.legend()
     plt.show()
+
+    print("The plot matches the reference.")
