@@ -18,4 +18,3 @@ def line():
     plt.plot(x, y, color='red')  # solid red line
     plt.xlim(0, 10)
     plt.show()
-    print("The plot matches the reference.")
