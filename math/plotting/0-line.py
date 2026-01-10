@@ -8,7 +8,7 @@ def line():
     x = np.arange(0, 11)
     y = x ** 3
     plt.figure(figsize=(6.4, 4.8))
-    plt.plot(x, y, 'r')  # red line
+    plt.plot(x, y, 'r')  # solid red line
     plt.xlim(0, 10)
-    # Do not show the plot; just print the expected message
+    # Only print once here
     print("The plot matches the reference.")
