@@ -7,6 +7,7 @@ Plots y = x^3 as a solid red line for x from 0 to 10.
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def line():
     """
     Plots a cubic line graph for y = x^3 with a solid red line.
