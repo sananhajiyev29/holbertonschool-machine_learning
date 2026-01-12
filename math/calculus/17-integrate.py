@@ -14,7 +14,7 @@ def poly_integral(poly, C=0):
         C (int): Integration constant
 
     Returns:
-        list: Coefficients of the integral polynomial
+        list: Coefficients of the integral polynomial, or None if input invalid
     """
     if not isinstance(poly, list) or not all(isinstance(x, (int, float)) for x in poly):
         return None
@@ -22,14 +22,14 @@ def poly_integral(poly, C=0):
         return None
 
     integral = [C]
+
     for i, coeff in enumerate(poly):
         val = coeff / (i + 1)
-        # Represent as int if whole number
         if val.is_integer():
             val = int(val)
         integral.append(val)
 
-    # Remove trailing zeros
+    # Remove trailing zeros but keep at least one element
     while len(integral) > 1 and integral[-1] == 0:
         integral.pop()
 
