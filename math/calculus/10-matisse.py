@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Calculate the derivative of a polynomial represented as a list of coefficients.
+"""Calculate the derivative of a polynomial represented as a list of
+coefficients.
 """
 
 
@@ -14,6 +15,8 @@ def poly_derivative(poly):
         return [0]
 
     # derivative: multiply each coefficient by its power (skip constant at index 0)
-    derivative = [i * poly[i] for i in range(1, len(poly))]
+    derivative = [
+        i * poly[i] for i in range(1, len(poly))
+    ]
 
     return derivative if derivative else [0]
