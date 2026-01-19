@@ -5,14 +5,14 @@ Module that concatenates two matrices along a specified axis.
 
 def cat_matrices(mat1, mat2, axis=0):
     """
-    Concatenates two matrices (lists of lists) along a given axis.
+    Concatenates two matrices along a given axis.
     Returns a new matrix if shapes are compatible, else None.
     """
-    # Base case: both are not lists (elements)
+    # If both are not lists (elements), cannot go deeper for axis>0
     if not isinstance(mat1, list) and not isinstance(mat2, list):
         return [mat1, mat2] if axis == 0 else None
 
-    # Both must be lists
+    # If only one is a list, shapes mismatch
     if not isinstance(mat1, list) or not isinstance(mat2, list):
         return None
 
@@ -20,7 +20,7 @@ def cat_matrices(mat1, mat2, axis=0):
     if axis == 0:
         return mat1 + mat2
 
-    # Axis > 0: must go deeper
+    # Axis > 0: dimensions must match
     if len(mat1) != len(mat2):
         return None
 
