@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Module that performs element-wise operations using numpy.
+Module that performs element-wise operations on arrays.
 """
-
-import numpy as np
 
 
 def np_elementwise(mat1, mat2):
     """
     Performs element-wise addition, subtraction, multiplication,
-    and division on numpy arrays.
+    and division.
     """
-    return (mat1 + mat2,
-            mat1 - mat2,
-            mat1 * mat2,
-            mat1 / mat2)
+    return (
+        mat1 + mat2,
+        mat1 - mat2,
+        mat1 * mat2,
+        mat1 / mat2
+    )
