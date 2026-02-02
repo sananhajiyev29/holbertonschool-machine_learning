@@ -54,3 +54,25 @@ class Normal:
         exponent = -((x - self.mean) ** 2) / (2 * (self.stddev ** 2))
 
         return coeff * (e ** exponent)
+
+    def cdf(self, x):
+        """
+        Calculates the value of the CDF for a given x-value
+        """
+        pi = 3.1415926536
+        z = (x - self.mean) / (self.stddev * (2 ** 0.5))
+
+        t = 1 / (1 + 0.3275911 * abs(z))
+        a1 = 0.254829592
+        a2 = -0.284496736
+        a3 = 1.421413741
+        a4 = -1.453152027
+        a5 = 1.061405429
+
+        poly = (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t)
+        erf_approx = 1 - poly * (2.7182818285 ** (-(z ** 2)))
+
+        if z < 0:
+            erf_approx *= -1
+
+        return 0.5 * (1 + erf_approx)
