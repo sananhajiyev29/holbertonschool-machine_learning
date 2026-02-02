@@ -26,10 +26,11 @@ class Normal:
 
             n = len(data)
             mean = sum(data) / n
-            variance = sum((x - mean) ** 2 for x in data) / n
+            # sample variance (n - 1)
+            variance = sum((x - mean) ** 2 for x in data) / (n - 1)
 
             self.mean = float(mean)
-            self.stddev = variance ** 0.5
+            self.stddev = float(variance ** 0.5)
 
     def z_score(self, x):
         """
@@ -50,7 +51,7 @@ class Normal:
         pi = 3.1415926536
         e = 2.7182818285
 
-        coeff = 1 / ((2 * pi * (self.stddev ** 2)) ** 0.5)
+        coeff = 1 / ((2 * pi) ** 0.5 * self.stddev)
         exponent = -((x - self.mean) ** 2) / (2 * (self.stddev ** 2))
 
         return coeff * (e ** exponent)
@@ -59,22 +60,20 @@ class Normal:
         """
         Calculates the value of the CDF for a given x-value
         """
-        pi = 3.1415926536
+        e = 2.7182818285
         z = (x - self.mean) / (self.stddev * (2 ** 0.5))
 
-        # erf(z) approximation using series expansion
-        erf_sum = 0
-        factorial = 1
-        z_power = z  # z^(2n+1) starts with n=0 -> z^1
+        t = 1 / (1 + 0.3275911 * abs(z))
+        a1 = 0.254829592
+        a2 = -0.284496736
+        a3 = 1.421413741
+        a4 = -1.453152027
+        a5 = 1.061405429
 
-        for n in range(0, 21):
-            if n > 0:
-                factorial *= n
-                z_power *= z * z
+        poly = (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t)
+        erf = 1 - poly * (e ** (-(abs(z) ** 2)))
 
-            term = ((-1) ** n) * z_power / (factorial * (2 * n + 1))
-            erf_sum += term
-
-        erf = (2 / (pi ** 0.5)) * erf_sum
+        if z < 0:
+            erf *= -1
 
         return 0.5 * (1 + erf)
