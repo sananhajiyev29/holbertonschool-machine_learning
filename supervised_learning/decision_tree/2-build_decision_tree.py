@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Decision tree structure with printing, depth, and node counting."""
+"""
+2-build_decision_tree.py
+Decision tree printing: implement __str__ for Node, Leaf, Decision_Tree.
+"""
 
 import numpy as np
 
 
 class Node:
-    """Represents an internal node."""
+    """Decision tree internal node."""
 
     def __init__(
         self,
@@ -13,131 +16,67 @@ class Node:
         threshold=None,
         left_child=None,
         right_child=None,
-        is_root=False,
         depth=0,
+        is_root=False
     ):
+        """Initialize a Node."""
         self.feature = feature
         self.threshold = threshold
         self.left_child = left_child
         self.right_child = right_child
-        self.is_leaf = False
-        self.is_root = is_root
-        self.sub_population = None
         self.depth = depth
-
-    def max_depth_below(self):
-        """Return maximum depth in subtree."""
-        return max(
-            self.left_child.max_depth_below(),
-            self.right_child.max_depth_below(),
-        )
-
-    def count_nodes_below(self, only_leaves=False):
-        """Return number of nodes in subtree."""
-        left_count = self.left_child.count_nodes_below(
-            only_leaves=only_leaves
-        )
-        right_count = self.right_child.count_nodes_below(
-            only_leaves=only_leaves
-        )
-        if only_leaves:
-            return left_count + right_count
-        return 1 + left_count + right_count
+        self.is_root = is_root
+        self.is_leaf = False
 
     def left_child_add_prefix(self, text):
-        """Prefix subtree text for a left child."""
+        """Prefix helper for left child printing."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
-            new_text += "    |  " + x + "\n"
+            new_text += ("    |  " + x) + "\n"
         return new_text
 
     def right_child_add_prefix(self, text):
-        """Prefix subtree text for a right child."""
+        """Prefix helper for right child printing."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
-            new_text += "       " + x + "\n"
+            new_text += ("       " + x) + "\n"
         return new_text
 
     def __str__(self):
-        """Return formatted subtree representation."""
-        if self.is_root:
-            header = (
-                f"root [feature={self.feature}, threshold={self.threshold}]"
-            )
-        else:
-            header = (
-                f"-> node [feature={self.feature}, threshold={self.threshold}]"
-            )
+        """String representation of the subtree rooted at this node."""
+        name = "root" if self.is_root else "node"
+        base = f"{name} [feature={self.feature}, threshold={self.threshold}]"
+        if self.left_child is None or self.right_child is None:
+            return base
 
-        left_str = str(self.left_child)
-        right_str = str(self.right_child)
-
-        out = (
-            header
-            + "\n"
-            + self.left_child_add_prefix(left_str)
-            + self.right_child_add_prefix(right_str)
-        )
-        return out.rstrip()
+        left_txt = self.left_child_add_prefix(str(self.left_child))
+        right_txt = self.right_child_add_prefix(str(self.right_child))
+        return base + "\n" + left_txt + right_txt
 
 
-class Leaf(Node):
-    """Represents a leaf node."""
+class Leaf:
+    """Decision tree leaf."""
 
-    def __init__(self, value, depth=None):
-        super().__init__()
+    def __init__(self, value, depth=0):
+        """Initialize a Leaf."""
         self.value = value
-        self.is_leaf = True
         self.depth = depth
-
-    def max_depth_below(self):
-        """Return leaf depth."""
-        return self.depth
-
-    def count_nodes_below(self, only_leaves=False):
-        """Return 1 for leaf."""
-        return 1
+        self.is_leaf = True
 
     def __str__(self):
-        """Return leaf string representation."""
+        """Leaf printing (given by the task)."""
         return f"-> leaf [value={self.value}]"
 
 
 class Decision_Tree:
     """Decision tree container."""
 
-    def __init__(
-        self,
-        max_depth=10,
-        min_pop=1,
-        seed=0,
-        split_criterion="random",
-        root=None,
-    ):
-        self.rng = np.random.default_rng(seed)
-        if root:
-            self.root = root
-        else:
-            self.root = Node(is_root=True)
-        self.explanatory = None
-        self.target = None
-        self.max_depth = max_depth
-        self.min_pop = min_pop
-        self.split_criterion = split_criterion
-        self.predict = None
-
-    def depth(self):
-        """Return maximum tree depth."""
-        return self.root.max_depth_below()
-
-    def count_nodes(self, only_leaves=False):
-        """Return number of nodes in tree."""
-        return self.root.count_nodes_below(
-            only_leaves=only_leaves
-        )
+    def __init__(self, root=None):
+        """Initialize Decision_Tree."""
+        self.root = root
 
     def __str__(self):
-        """Return printable tree representation."""
+        """Tree printing (given by the task)."""
         return self.root.__str__()
