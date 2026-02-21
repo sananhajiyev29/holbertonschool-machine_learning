@@ -4,8 +4,8 @@
 
 Isolation Random Trees:
 - Train using random splits only (no target classes)
-- Prediction returns depth of the leaf an individual falls into
-- Useful for outlier detection (small mean leaf depth => likely outlier)
+- Prediction returns the depth of the leaf an individual falls into
+- Outliers tend to reach shallow leaves (small depth)
 """
 
 Node = __import__("8-build_decision_tree").Node
@@ -29,11 +29,11 @@ class Isolation_Random_Tree:
         self.min_pop = 1
 
     def __str__(self):
-        """String representation (same behavior as Decision_Tree)."""
+        """String representation (same as in Decision_Tree)."""
         return str(self.root)
 
     def depth(self):
-        """Return maximum depth (same behavior as Decision_Tree)."""
+        """Return maximum depth (same as in Decision_Tree)."""
 
         def rec(n):
             if getattr(n, "is_leaf", False):
@@ -43,7 +43,7 @@ class Isolation_Random_Tree:
         return rec(self.root)
 
     def count_nodes(self, only_leaves=False):
-        """Count nodes (same behavior as Decision_Tree)."""
+        """Count nodes (same as in Decision_Tree)."""
 
         def rec(n):
             if getattr(n, "is_leaf", False):
@@ -60,17 +60,18 @@ class Isolation_Random_Tree:
         return rec(self.root)
 
     def update_bounds(self):
-        """Compute bounds for whole tree (same behavior as Decision_Tree)."""
+        """Compute bounds for whole tree (same as in Decision_Tree)."""
         self.root.update_bounds_below()
 
     def get_leaves(self):
-        """Return all leaves (same behavior as Decision_Tree)."""
+        """Return all leaves (same as in Decision_Tree)."""
         return self.root.get_leaves_below()
 
     def update_predict(self):
         """
-        Build efficient batch predict (same structure as Decision_Tree),
-        but prediction values are leaf.depth.
+        Build efficient batch prediction function.
+
+        Here, leaf.value is the depth of the leaf.
         """
         self.update_bounds()
         leaves = self.get_leaves()
@@ -91,22 +92,38 @@ class Isolation_Random_Tree:
         return np.min(arr), np.max(arr)
 
     def random_split_criterion(self, node):
-        """Pick a random valid (feature, threshold) (same as Decision_Tree)."""
+        """
+        Pick a random (feature, threshold) valid for node population.
+
+        Same spirit as Decision_Tree, but safe: if no feature has spread,
+        return a dummy split (caller should not rely on it if leaf).
+        """
+        pop = int(np.sum(node.sub_population))
+        if pop <= 1:
+            return 0, 0.0
+
         diff = 0.0
-        while diff == 0.0:
-            feature = self.rng.integers(0, self.explanatory.shape[1])
+        tries = 0
+        n_features = self.explanatory.shape[1]
+
+        while diff == 0.0 and tries < 10 * n_features:
+            feature = int(self.rng.integers(0, n_features))
             vals = self.explanatory[:, feature][node.sub_population]
             feature_min, feature_max = self.np_extrema(vals)
-            diff = feature_max - feature_min
+            diff = float(feature_max - feature_min)
+            tries += 1
 
-        x = self.rng.uniform()
-        threshold = (1 - x) * feature_min + x * feature_max
-        return int(feature), float(threshold)
+        if diff == 0.0:
+            return 0, 0.0
+
+        x = float(self.rng.uniform())
+        threshold = (1 - x) * float(feature_min) + x * float(feature_max)
+        return feature, threshold
 
     def get_leaf_child(self, node, sub_population):
         """
         Create a Leaf child (different from Decision_Tree):
-        leaf value is the depth of the leaf.
+        leaf.value is the depth of the leaf.
         """
         leaf_child = Leaf(value=node.depth + 1)
         leaf_child.depth = node.depth + 1
@@ -115,11 +132,29 @@ class Isolation_Random_Tree:
         return leaf_child
 
     def get_node_child(self, node, sub_population):
-        """Create a Node child (same as Decision_Tree)."""
+        """Create a Node child (same as in Decision_Tree)."""
         n = Node()
         n.depth = node.depth + 1
         n.sub_population = sub_population
         return n
+
+    def _must_be_leaf(self, node, sub_population):
+        """
+        Leaf condition for isolation tree:
+        - population size <= min_pop  (IMPORTANT: prevents infinite loops)
+        - OR reached max_depth
+        - OR all features have zero spread (cannot split)
+        """
+        pop = int(np.sum(sub_population))
+        if pop <= self.min_pop:
+            return True
+        if (node.depth + 1) >= self.max_depth:
+            return True
+
+        idx = np.where(sub_population)[0]
+        x_sub = self.explanatory[idx, :]
+        spread = np.max(x_sub, axis=0) - np.min(x_sub, axis=0)
+        return np.all(spread == 0)
 
     def fit_node(self, node):
         """Recursively fit a node using random splits."""
@@ -129,21 +164,14 @@ class Isolation_Random_Tree:
         left_population = np.logical_and(node.sub_population, go_left)
         right_population = np.logical_and(node.sub_population, ~go_left)
 
-        left_size = int(np.sum(left_population))
-        right_size = int(np.sum(right_population))
-
-        is_left_leaf = (left_size < self.min_pop) or (
-            (node.depth + 1) >= self.max_depth
-        )
+        is_left_leaf = self._must_be_leaf(node, left_population)
         if is_left_leaf:
             node.left_child = self.get_leaf_child(node, left_population)
         else:
             node.left_child = self.get_node_child(node, left_population)
             self.fit_node(node.left_child)
 
-        is_right_leaf = (right_size < self.min_pop) or (
-            (node.depth + 1) >= self.max_depth
-        )
+        is_right_leaf = self._must_be_leaf(node, right_population)
         if is_right_leaf:
             node.right_child = self.get_leaf_child(node, right_population)
         else:
