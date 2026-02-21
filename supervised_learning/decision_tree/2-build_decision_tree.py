@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """
 2-build_decision_tree.py
-Decision tree printing: implement __str__ for Node, Leaf, Decision_Tree.
+Build and print a decision tree (string representation).
 """
-
-import numpy as np
 
 
 class Node:
@@ -29,31 +27,34 @@ class Node:
         self.is_leaf = False
 
     def left_child_add_prefix(self, text):
-        """Prefix helper for left child printing."""
+        """Add the left-branch prefixes to a multiline string."""
         lines = text.split("\n")
-        new_text = "    +--" + lines[0] + "\n"
-        for x in lines[1:]:
-            new_text += ("    |  " + x) + "\n"
-        return new_text
+        out = "+--" + lines[0]
+        for line in lines[1:]:
+            out += "\n| " + line
+        return out
 
     def right_child_add_prefix(self, text):
-        """Prefix helper for right child printing."""
+        """Add the right-branch prefixes to a multiline string."""
         lines = text.split("\n")
-        new_text = "    +--" + lines[0] + "\n"
-        for x in lines[1:]:
-            new_text += ("       " + x) + "\n"
-        return new_text
+        out = "+--" + lines[0]
+        for line in lines[1:]:
+            out += "\n" + line
+        return out
 
     def __str__(self):
-        """String representation of the subtree rooted at this node."""
-        name = "root" if self.is_root else "node"
-        base = f"{name} [feature={self.feature}, threshold={self.threshold}]"
+        """Return a string representation of the subtree."""
+        if self.is_root:
+            head = f"root [feature={self.feature}, threshold={self.threshold}]"
+        else:
+            head = f"-> node [feature={self.feature}, threshold={self.threshold}]"
+
         if self.left_child is None or self.right_child is None:
-            return base
+            return head
 
         left_txt = self.left_child_add_prefix(str(self.left_child))
         right_txt = self.right_child_add_prefix(str(self.right_child))
-        return base + "\n" + left_txt + right_txt
+        return head + "\n" + left_txt + "\n" + right_txt
 
 
 class Leaf:
@@ -66,7 +67,7 @@ class Leaf:
         self.is_leaf = True
 
     def __str__(self):
-        """Leaf printing (given by the task)."""
+        """Return a string representation of the leaf."""
         return f"-> leaf [value={self.value}]"
 
 
@@ -78,5 +79,5 @@ class Decision_Tree:
         self.root = root
 
     def __str__(self):
-        """Tree printing (given by the task)."""
+        """Return a string representation of the tree."""
         return self.root.__str__()
