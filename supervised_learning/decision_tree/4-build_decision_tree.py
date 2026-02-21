@@ -34,7 +34,7 @@ class Node:
 
         self.is_leaf = False
 
-        # Bounds dictionaries to be computed by update_bounds_below()
+        # Bounds dictionaries computed by update_bounds_below()
         self.lower = {}
         self.upper = {}
 
@@ -47,11 +47,17 @@ class Node:
         indent = "  " * self.depth
         s = f"{indent}Node(feature={self.feature}, threshold={self.threshold})\n"
         s += f"{indent}  left:\n"
-        s += self.left_child._str_helper() if hasattr(self.left_child, "_str_helper") else \
-            f"{indent}    {self.left_child}\n"
+        s += (
+            self.left_child._str_helper()
+            if hasattr(self.left_child, "_str_helper")
+            else f"{indent}    {self.left_child}\n"
+        )
         s += f"{indent}  right:\n"
-        s += self.right_child._str_helper() if hasattr(self.right_child, "_str_helper") else \
-            f"{indent}    {self.right_child}\n"
+        s += (
+            self.right_child._str_helper()
+            if hasattr(self.right_child, "_str_helper")
+            else f"{indent}    {self.right_child}\n"
+        )
         return s
 
     def get_leaves_below(self):
@@ -65,34 +71,33 @@ class Node:
         """
         Recursively compute and attach bounds dicts (lower/upper) to descendants.
 
-        Convention required by the project examples:
-        - left_child corresponds to values >= threshold (updates LOWER bound)
-        - right_child corresponds to values <= threshold (updates UPPER bound)
+        Expected convention (matches the provided checker output):
+        - left_child corresponds to values >= threshold  -> update LOWER bound
+        - right_child corresponds to values <= threshold -> update UPPER bound
+
+        Important: Do NOT add unconstrained bounds for a feature.
+        Only features that get constrained should appear as keys.
         """
         if self.is_root:
             self.upper = {0: np.inf}
             self.lower = {0: -1 * np.inf}
 
+        f = self.feature
+        t = self.threshold
+
+        # Attach bounds to children (copy parent), then constrain only one side
         for child in [self.left_child, self.right_child]:
-            # Start from parent's bounds (copy to avoid aliasing)
             child.lower = dict(self.lower)
             child.upper = dict(self.upper)
 
-            f = self.feature
-            t = self.threshold
-
-            # Default bounds if feature not yet present
-            parent_low = child.lower.get(f, -1 * np.inf)
-            parent_up = child.upper.get(f, np.inf)
-
             if child is self.left_child:
-                # left: >= threshold  -> raise lower bound
-                child.lower[f] = max(parent_low, t)
-                child.upper[f] = parent_up
+                # >= threshold: lower bound constraint
+                prev_low = child.lower.get(f, -1 * np.inf)
+                child.lower[f] = max(prev_low, t)
             else:
-                # right: <= threshold -> lower upper bound
-                child.upper[f] = min(parent_up, t)
-                child.lower[f] = parent_low
+                # <= threshold: upper bound constraint
+                prev_up = child.upper.get(f, np.inf)
+                child.upper[f] = min(prev_up, t)
 
         for child in [self.left_child, self.right_child]:
             child.update_bounds_below()
