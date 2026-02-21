@@ -27,9 +27,10 @@ class Node:
 
     def max_depth_below(self):
         """Return maximum depth in subtree."""
-        left_depth = self.left_child.max_depth_below()
-        right_depth = self.right_child.max_depth_below()
-        return max(left_depth, right_depth)
+        return max(
+            self.left_child.max_depth_below(),
+            self.right_child.max_depth_below(),
+        )
 
     def count_nodes_below(self, only_leaves=False):
         """Return number of nodes in subtree."""
@@ -39,13 +40,12 @@ class Node:
         right_count = self.right_child.count_nodes_below(
             only_leaves=only_leaves
         )
-
         if only_leaves:
             return left_count + right_count
         return 1 + left_count + right_count
 
     def left_child_add_prefix(self, text):
-        """Add left-branch prefix formatting to a multi-line subtree text."""
+        """Prefix subtree text for a left child."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
@@ -53,7 +53,7 @@ class Node:
         return new_text
 
     def right_child_add_prefix(self, text):
-        """Add right-branch prefix formatting to a multi-line subtree text."""
+        """Prefix subtree text for a right child."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
@@ -61,7 +61,7 @@ class Node:
         return new_text
 
     def __str__(self):
-        """Return a formatted string representation of the subtree."""
+        """Return formatted subtree representation."""
         if self.is_root:
             header = (
                 f"root [feature={self.feature}, threshold={self.threshold}]"
@@ -74,12 +74,13 @@ class Node:
         left_str = str(self.left_child)
         right_str = str(self.right_child)
 
-        return (
+        out = (
             header
             + "\n"
             + self.left_child_add_prefix(left_str)
             + self.right_child_add_prefix(right_str)
-        ).rstrip()
+        )
+        return out.rstrip()
 
 
 class Leaf(Node):
