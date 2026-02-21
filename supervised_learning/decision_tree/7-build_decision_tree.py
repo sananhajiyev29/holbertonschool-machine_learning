@@ -235,13 +235,12 @@ class Decision_Tree:
         self.update_predict()
 
         if verbose == 1:
+            print("Training finished.")
+            print(f"Depth : {self.depth()}")
+            print(f"Number of nodes : {self.count_nodes()}")
+            print(f"Number of leaves : {self.count_nodes(only_leaves=True)}")
             print(
-                "  Training finished.\n"
-                f"- Depth                     : {self.depth()}\n"
-                f"- Number of nodes           : {self.count_nodes()}\n"
-                f"- Number of leaves          : "
-                f"{self.count_nodes(only_leaves=True)}\n"
-                f"- Accuracy on training data : "
+                "Accuracy on training data : "
                 f"{self.accuracy(self.explanatory, self.target)}"
             )
 
@@ -344,20 +343,19 @@ class Decision_Tree:
 
     def count_nodes(self, only_leaves=False):
         """Count nodes in the tree (optionally only leaves)."""
+
         def rec(n):
             if getattr(n, "is_leaf", False):
-                return 1 if only_leaves else 1
-            left = rec(n.left_child)
-            right = rec(n.right_child)
-            return left + right
+                return 1
+            return 1 + rec(n.left_child) + rec(n.right_child)
+
+        def rec_leaves(n):
+            if getattr(n, "is_leaf", False):
+                return 1
+            return rec_leaves(n.left_child) + rec_leaves(n.right_child)
 
         if only_leaves:
-            def rec_leaves(n):
-                if getattr(n, "is_leaf", False):
-                    return 1
-                return rec_leaves(n.left_child) + rec_leaves(n.right_child)
             return rec_leaves(self.root)
-
         return rec(self.root)
 
     def depth(self):
