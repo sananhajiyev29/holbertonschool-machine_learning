@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Module for building a simple decision tree structure and computing depth."""
+"""Decision tree structure with depth computation."""
 
 import numpy as np
 
 
 class Node:
-    """Represents an internal node of a decision tree."""
+    """Represents an internal node."""
 
     def __init__(
         self,
@@ -26,14 +26,14 @@ class Node:
         self.depth = depth
 
     def max_depth_below(self):
-        """Returns the maximum depth found in the subtree rooted at this node."""
+        """Return maximum depth in subtree."""
         left_depth = self.left_child.max_depth_below()
         right_depth = self.right_child.max_depth_below()
         return max(left_depth, right_depth)
 
 
 class Leaf(Node):
-    """Represents a leaf node of a decision tree."""
+    """Represents a leaf node."""
 
     def __init__(self, value, depth=None):
         super().__init__()
@@ -42,12 +42,12 @@ class Leaf(Node):
         self.depth = depth
 
     def max_depth_below(self):
-        """Returns the depth of the leaf."""
+        """Return leaf depth."""
         return self.depth
 
 
 class Decision_Tree:
-    """Represents a decision tree model container."""
+    """Decision tree container."""
 
     def __init__(
         self,
@@ -70,5 +70,5 @@ class Decision_Tree:
         self.predict = None
 
     def depth(self):
-        """Returns the maximum depth of the tree."""
+        """Return maximum tree depth."""
         return self.root.max_depth_below()
