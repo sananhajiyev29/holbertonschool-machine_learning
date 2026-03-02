@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
-"""Module defines a neural network with one hidden layer performing binary classification."""
+"""10-neural_network.py"""
 
 import numpy as np
 
 
 class NeuralNetwork:
-    """Neural network with one hidden layer performing binary classification."""
+    """Neural network with one hidden layer performing binary classification"""
 
     def __init__(self, nx, nodes):
-        """Initialize the neural network.
-        
-        Args:
-            nx (int): number of input features
-            nodes (int): number of nodes in the hidden layer
-        """
+        """Initialize weights, biases, and activated outputs"""
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
         if nx < 1:
@@ -32,47 +27,32 @@ class NeuralNetwork:
 
     @property
     def W1(self):
-        """Getter for W1."""
         return self.__W1
 
     @property
     def b1(self):
-        """Getter for b1."""
         return self.__b1
 
     @property
     def A1(self):
-        """Getter for A1."""
         return self.__A1
 
     @property
     def W2(self):
-        """Getter for W2."""
         return self.__W2
 
     @property
     def b2(self):
-        """Getter for b2."""
         return self.__b2
 
     @property
     def A2(self):
-        """Getter for A2."""
         return self.__A2
 
     def forward_prop(self, X):
-        """Calculates forward propagation of the neural network using sigmoid activation.
-        
-        Args:
-            X (numpy.ndarray): shape (nx, m) input data
-        
-        Returns:
-            tuple: (A1, A2) activated outputs for hidden and output layers
-        """
+        """Calculates forward propagation using sigmoid activation"""
         Z1 = np.dot(self.__W1, X) + self.__b1
         self.__A1 = 1 / (1 + np.exp(-Z1))
         Z2 = np.dot(self.__W2, self.__A1) + self.__b2
-        self.__A2 = 1 / (
-            1 + np.exp(-Z2)
-        )
+        self.__A2 = 1 / (1 + np.exp(-Z2))
         return self.__A1, self.__A2
