@@ -5,10 +5,16 @@ import numpy as np
 
 
 class DeepNeuralNetwork:
-    """Deep neural network performing binary classification"""
+    """Defines a deep neural network performing binary classification"""
 
     def __init__(self, nx, layers):
-        """Initialize the deep neural network"""
+        """Initialize the deep neural network
+
+        Args:
+            nx (int): number of input features
+            layers (list): list of nodes in each layer
+        """
+        # Input validation
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
         if nx < 1:
@@ -22,9 +28,9 @@ class DeepNeuralNetwork:
         self.cache = {}
         self.weights = {}
 
+        # Initialize weights and biases using He et al. method
         prev_size = nx
-        for l, layer_size in enumerate(layers, 1):
-            self.weights["W{}".format(l)] = (np.random.randn(layer_size,
-                prev_size) * np.sqrt(2 / prev_size))
-            self.weights["b{}".format(l)] = np.zeros((layer_size, 1))
-            prev_size = layer_size
+        for l, nodes in enumerate(layers, start=1):
+            self.weights[f"W{l}"] = np.random.randn(nodes, prev_size) * np.sqrt(2 / prev_size)
+            self.weights[f"b{l}"] = np.zeros((nodes, 1))
+            prev_size = nodes
