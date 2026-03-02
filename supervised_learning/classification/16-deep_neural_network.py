@@ -28,7 +28,7 @@ class DeepNeuralNetwork:
         self.cache = {}
         self.weights = {}
 
-        # Initialize weights and biases using He et al. method
+        # Single loop to initialize weights and biases using He et al. method
         prev_size = nx
         for l, nodes in enumerate(layers, start=1):
             self.weights[f"W{l}"] = np.random.randn(nodes, prev_size) * np.sqrt(2 / prev_size)
