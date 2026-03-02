@@ -5,9 +5,10 @@ import numpy as np
 
 
 class NeuralNetwork:
-    """Defines a neural network with one hidden layer performing binary classification"""
+    """Neural network with one hidden layer performing binary classification"""
 
     def __init__(self, nx, nodes):
+        """Initialize weights, biases, and activated outputs"""
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
         if nx < 1:
@@ -57,14 +58,16 @@ class NeuralNetwork:
         return self.__A1, self.__A2
 
     def cost(self, Y, A):
-        """Calculates cost using logistic regression"""
+        """Calculates the cost of the model using logistic regression"""
         m = Y.shape[1]
-        cost = -np.sum(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)) / m
+        cost = -(1 / m) * np.sum(
+            Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)
+        )
         return cost
 
     def evaluate(self, X, Y):
-        """Evaluates the neural network's predictions"""
-        self.forward_prop(X)
-        predictions = np.where(self.__A2 >= 0.5, 1, 0)
-        cost = self.cost(Y, self.__A2)
+        """Evaluates predictions and calculates cost"""
+        _, A2 = self.forward_prop(X)
+        cost = self.cost(Y, A2)
+        predictions = np.where(A2 >= 0.5, 1, 0)
         return predictions, cost
