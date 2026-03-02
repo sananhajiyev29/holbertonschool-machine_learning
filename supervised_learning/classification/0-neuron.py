@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Module that defines a single neuron for binary classification"""
+
 import numpy as np
 
 
