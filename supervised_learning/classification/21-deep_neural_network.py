@@ -83,7 +83,9 @@ class DeepNeuralNetwork:
             The cost.
         """
         m = Y.shape[1]
-        cost = -np.sum(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)) / m
+        cost = -np.sum(
+            Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)
+        ) / m
         return cost
 
     def evaluate(self, X, Y):
@@ -106,7 +108,7 @@ class DeepNeuralNetwork:
 
         Args:
             Y: numpy.ndarray with shape (1, m) with correct labels.
-            cache: dictionary containing all intermediary values of the network.
+            cache: dictionary containing all intermediary values of network.
             alpha: the learning rate.
         """
         m = Y.shape[1]
@@ -119,8 +121,7 @@ class DeepNeuralNetwork:
             dW = np.matmul(dZ, A_prev.T) / m
             db = np.sum(dZ, axis=1, keepdims=True) / m
 
-            A_prev_val = cache['A' + str(i - 1)]
-            dZ = np.matmul(W.T, dZ) * (A_prev_val * (1 - A_prev_val))
+            dZ = np.matmul(W.T, dZ) * (A_prev * (1 - A_prev))
 
             self.__weights['W' + str(i)] -= alpha * dW
             self.__weights['b' + str(i)] -= alpha * db
