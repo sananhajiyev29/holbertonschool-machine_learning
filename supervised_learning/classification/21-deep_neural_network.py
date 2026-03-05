@@ -64,15 +64,14 @@ class DeepNeuralNetwork:
         """
         m = Y.shape[1]
         L = self.L
-        weights_copy = self.__weights.copy()
         dZ = cache["A" + str(L)] - Y  # gradient for output layer
 
         for l in reversed(range(1, L + 1)):
             A_prev = cache["A" + str(l - 1)]
             dW = np.dot(dZ, A_prev.T) / m
             db = np.sum(dZ, axis=1, keepdims=True) / m
-            self.__weights["W" + str(l)] = weights_copy["W" + str(l)] - alpha * dW
-            self.__weights["b" + str(l)] = weights_copy["b" + str(l)] - alpha * db
+            self.__weights["W" + str(l)] -= alpha * dW
+            self.__weights["b" + str(l)] -= alpha * db
             if l > 1:
                 A_prev = cache["A" + str(l - 1)]
-                dZ = np.dot(weights_copy["W" + str(l)].T, dZ) * (A_prev * (1 - A_prev))
+                dZ = np.dot(self.__weights["W" + str(l)].T, dZ) * (A_prev * (1 - A_prev))
