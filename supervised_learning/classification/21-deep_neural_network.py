@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Module 21-deep_neural_network
-Defines DeepNeuralNetwork class for binary classification with gradient descent.
+Defines DeepNeuralNetwork class with gradient descent.
 """
 import numpy as np
 
@@ -13,9 +13,9 @@ class DeepNeuralNetwork:
 
     def __init__(self, nx, layers):
         """
-        Initialize a deep neural network.
+        Initialize network.
         nx: number of input features
-        layers: list representing number of nodes in each layer
+        layers: list of nodes per layer
         """
         if type(nx) is not int or nx < 1:
             raise ValueError("nx must be a positive integer")
@@ -23,6 +23,7 @@ class DeepNeuralNetwork:
             type(x) == int and x > 0 for x in layers
         ):
             raise TypeError("layers must be a list of positive integers")
+
         self.nx = nx
         self.layers = layers
         self.L = len(layers)
@@ -31,7 +32,9 @@ class DeepNeuralNetwork:
 
         for l in range(self.L):
             if l == 0:
-                self.__weights["W1"] = np.random.randn(layers[l], nx) * np.sqrt(2 / nx)
+                self.__weights["W1"] = (
+                    np.random.randn(layers[l], nx) * np.sqrt(2 / nx)
+                )
             else:
                 self.__weights["W" + str(l + 1)] = (
                     np.random.randn(layers[l], layers[l - 1])
@@ -41,30 +44,30 @@ class DeepNeuralNetwork:
 
     @property
     def weights(self):
-        """Get the weights dictionary."""
+        """Get network weights."""
         return self.__weights
 
     def forward_prop(self, X):
-        """Calculates forward propagation for the network."""
+        """Forward propagation for the network."""
         self.cache["A0"] = X
         for l in range(1, self.L + 1):
-            Wl = self.__weights["W" + str(l)]
-            bl = self.__weights["b" + str(l)]
+            W = self.__weights["W" + str(l)]
+            b = self.__weights["b" + str(l)]
             A_prev = self.cache["A" + str(l - 1)]
-            Zl = np.dot(Wl, A_prev) + bl
-            self.cache["A" + str(l)] = 1 / (1 + np.exp(-Zl))
+            Z = np.dot(W, A_prev) + b
+            self.cache["A" + str(l)] = 1 / (1 + np.exp(-Z))
         return self.cache["A" + str(self.L)], self.cache
 
     def gradient_descent(self, Y, cache, alpha=0.05):
         """
-        Performs one pass of gradient descent on the network.
+        Perform one pass of gradient descent.
         Y: correct labels, shape (1, m)
-        cache: dictionary of intermediate values
+        cache: forward propagation cache
         alpha: learning rate
         """
         m = Y.shape[1]
         L = self.L
-        dZ = cache["A" + str(L)] - Y  # gradient for output layer
+        dZ = cache["A" + str(L)] - Y
 
         for l in reversed(range(1, L + 1)):
             A_prev = cache["A" + str(l - 1)]
