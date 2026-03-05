@@ -25,7 +25,9 @@ class DeepNeuralNetwork:
             if not isinstance(nodes, int) or nodes <= 0:
                 raise TypeError("layers must be a list of positive integers")
             # He initialization
-            self.__weights["W{}".format(i + 1)] = np.random.randn(nodes, prev) * np.sqrt(2 / prev)
+            self.__weights["W{}".format(i + 1)] = (
+                np.random.randn(nodes, prev) * np.sqrt(2 / prev)
+            )
             self.__weights["b{}".format(i + 1)] = np.zeros((nodes, 1))
             prev = nodes
 
@@ -47,13 +49,13 @@ class DeepNeuralNetwork:
     def forward_prop(self, X):
         """Calculates forward propagation"""
         self.__cache["A0"] = X
-        for l in range(1, self.__L + 1):
-            W = self.__weights["W{}".format(l)]
-            b = self.__weights["b{}".format(l)]
-            A_prev = self.__cache["A{}".format(l - 1)]
+        for layer in range(1, self.__L + 1):
+            W = self.__weights["W{}".format(layer)]
+            b = self.__weights["b{}".format(layer)]
+            A_prev = self.__cache["A{}".format(layer - 1)]
             Z = np.matmul(W, A_prev) + b
             A = 1 / (1 + np.exp(-Z))  # Sigmoid activation
-            self.__cache["A{}".format(l)] = A
+            self.__cache["A{}".format(layer)] = A
         return A, self.__cache
 
     def cost(self, Y, A):
