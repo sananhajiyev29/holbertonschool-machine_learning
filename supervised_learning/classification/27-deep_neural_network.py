@@ -91,7 +91,7 @@ class DeepNeuralNetwork:
             The cost.
         """
         m = Y.shape[1]
-        cost = -np.sum(Y * np.log(A + 1e-7)) / m
+        cost = -np.sum(Y * np.log(A)) / m
         return cost
 
     def evaluate(self, X, Y):
