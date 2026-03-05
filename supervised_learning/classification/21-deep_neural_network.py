@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Deep Neural Network with gradient descent"""
+"""Deep Neural Network performing binary classification"""
 
 import numpy as np
 
 
 class DeepNeuralNetwork:
-    """Defines a deep neural network performing binary classification"""
+    """Deep Neural Network class"""
 
     def __init__(self, nx, layers):
-        """Initialize the network"""
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
         if nx < 1:
@@ -30,43 +29,38 @@ class DeepNeuralNetwork:
 
     @property
     def L(self):
-        """Number of layers"""
         return self.__L
 
     @property
     def cache(self):
-        """Cache of activated outputs"""
         return self.__cache
 
     @property
     def weights(self):
-        """Weights and biases"""
         return self.__weights
 
     def forward_prop(self, X):
-        """Forward propagation with sigmoid activation"""
+        """Forward propagation using sigmoid activation"""
         self.__cache["A0"] = X
-        for layer in range(1, self.__L + 1):
-            W = self.__weights[f"W{layer}"]
-            b = self.__weights[f"b{layer}"]
-            A_prev = self.__cache[f"A{layer-1}"]
+        for l in range(1, self.__L + 1):
+            W = self.__weights[f"W{l}"]
+            b = self.__weights[f"b{l}"]
+            A_prev = self.__cache[f"A{l-1}"]
             Z = np.matmul(W, A_prev) + b
             A = 1 / (1 + np.exp(-Z))
-            self.__cache[f"A{layer}"] = A
+            self.__cache[f"A{l}"] = A
         return A, self.__cache
 
     def cost(self, Y, A):
-        """Compute logistic regression cost"""
+        """Compute cost using logistic regression"""
         m = Y.shape[1]
-        cost = -(1 / m) * np.sum(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A))
-        return cost
+        return -(1 / m) * np.sum(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A))
 
     def evaluate(self, X, Y):
-        """Evaluate predictions and cost"""
+        """Evaluate predictions"""
         A, _ = self.forward_prop(X)
-        cost = self.cost(Y, A)
         prediction = np.where(A >= 0.5, 1, 0)
-        return prediction, cost
+        return prediction, self.cost(Y, A)
 
     def gradient_descent(self, Y, cache, alpha=0.05):
         """Perform one pass of gradient descent"""
@@ -74,16 +68,16 @@ class DeepNeuralNetwork:
         L = self.__L
         dZ = cache[f"A{L}"] - Y
 
-        for layer in reversed(range(1, L + 1)):
-            A_prev = cache[f"A{layer-1}"]
-            W = self.__weights[f"W{layer}"]
+        for l in reversed(range(1, L + 1)):
+            A_prev = cache[f"A{l-1}"]
+            W = self.__weights[f"W{l}"]
 
             dW = (1 / m) * np.matmul(dZ, A_prev.T)
             db = (1 / m) * np.sum(dZ, axis=1, keepdims=True)
 
-            self.__weights[f"W{layer}"] -= alpha * dW
-            self.__weights[f"b{layer}"] -= alpha * db
+            self.__weights[f"W{l}"] -= alpha * dW
+            self.__weights[f"b{l}"] -= alpha * db
 
-            if layer > 1:
-                A_prev_layer = cache[f"A{layer-1}"]
+            if l > 1:
+                A_prev_layer = cache[f"A{l-1}"]
                 dZ = np.matmul(W.T, dZ) * (A_prev_layer * (1 - A_prev_layer))
