@@ -14,4 +14,4 @@ def l2_reg_cost(cost, model):
     Returns:
         Tensor containing the total cost for each layer of the network.
     """
-    return cost + model.losses
+    return cost + [loss * 2 for loss in model.losses]
