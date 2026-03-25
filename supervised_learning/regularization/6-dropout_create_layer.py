@@ -17,10 +17,11 @@ def dropout_create_layer(prev, n, activation, keep_prob, training=True):
     Returns:
         The output of the new layer.
     """
-    initializer = tf.keras.initializers.VarianceScaling(mode='fan_avg')
     layer = tf.keras.layers.Dense(
         units=n,
         activation=activation,
-        kernel_initializer=initializer
+        kernel_initializer='glorot_uniform'
     )(prev)
-    return tf.keras.layers.Dropout(rate=1 - keep_prob)(layer, training=training)
+    return tf.keras.layers.Dropout(
+        rate=1 - keep_prob
+    )(layer, training=training)
