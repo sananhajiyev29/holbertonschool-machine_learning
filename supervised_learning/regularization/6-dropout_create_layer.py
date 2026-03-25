@@ -22,6 +22,5 @@ def dropout_create_layer(prev, n, activation, keep_prob, training=True):
         activation=activation,
         kernel_initializer='glorot_uniform'
     )(prev)
-    return tf.keras.layers.Dropout(
-        rate=1 - keep_prob
-    )(layer, training=training)
+    dropout = tf.keras.layers.Dropout(rate=1 - keep_prob)
+    return dropout(layer, training=training)
