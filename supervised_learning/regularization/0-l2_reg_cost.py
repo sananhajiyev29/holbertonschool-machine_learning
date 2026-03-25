@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Module that calculates the cost of a neural network with L2 regularization."""
+"""Module that calculates the cost with L2 regularization."""
 
 import numpy as np
 
