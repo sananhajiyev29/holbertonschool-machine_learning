@@ -37,16 +37,16 @@ def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
 
     for i in range(h_new):
         for j in range(w_new):
-            for k in range(c_new):
-                dA_prev_pad[
-                    :, i * sh:i * sh + kh, j * sw:j * sw + kw, :
-                ] += W[:, :, :, k] * dZ[:, i, j, k][:, None, None, None]
-                dW[:, :, :, k] += np.sum(
-                    A_prev_pad[
-                        :, i * sh:i * sh + kh, j * sw:j * sw + kw, :
-                    ] * dZ[:, i, j, k][:, None, None, None],
-                    axis=0
-                )
+            h_start = i * sh
+            w_start = j * sw
+            region = A_prev_pad[:, h_start:h_start + kh,
+                                 w_start:w_start + kw, :]
+            dz = dZ[:, i, j, :]
+            dA_prev_pad[:, h_start:h_start + kh,
+                        w_start:w_start + kw, :] += np.tensordot(
+                dz, W, axes=[[1], [3]]
+            )
+            dW += np.tensordot(region, dz, axes=[[0], [0]])
 
     if ph > 0 and pw > 0:
         dA_prev = dA_prev_pad[:, ph:-ph, pw:-pw, :]
