@@ -23,23 +23,13 @@ def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
     sh, sw = stride
 
     if padding == 'same':
-        ph_total = max(
-            (int(np.ceil(h_prev / sh)) - 1) * sh + kh - h_prev, 0
-        )
-        pw_total = max(
-            (int(np.ceil(w_prev / sw)) - 1) * sw + kw - w_prev, 0
-        )
-        ph_top = (ph_total + 1) // 2
-        ph_bot = ph_total - ph_top
-        pw_left = (pw_total + 1) // 2
-        pw_right = pw_total - pw_left
+        ph = (kh - 1) // 2
+        pw = (kw - 1) // 2
     else:
-        ph_top = ph_bot = pw_left = pw_right = 0
+        ph, pw = 0, 0
 
     A_prev_pad = np.pad(
-        A_prev,
-        ((0, 0), (ph_top, ph_bot), (pw_left, pw_right), (0, 0)),
-        mode='constant'
+        A_prev, ((0, 0), (ph, ph), (pw, pw), (0, 0)), mode='constant'
     )
     dA_prev_pad = np.zeros_like(A_prev_pad)
     dW = np.zeros_like(W)
@@ -58,10 +48,12 @@ def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
             )
             dW += np.tensordot(region, dz, axes=[[0], [0]])
 
-    if padding == 'same':
-        h_end = dA_prev_pad.shape[1] - ph_bot if ph_bot > 0 else None
-        w_end = dA_prev_pad.shape[2] - pw_right if pw_right > 0 else None
-        dA_prev = dA_prev_pad[:, ph_top:h_end, pw_left:w_end, :]
+    if ph > 0 and pw > 0:
+        dA_prev = dA_prev_pad[:, ph:-ph, pw:-pw, :]
+    elif ph > 0:
+        dA_prev = dA_prev_pad[:, ph:-ph, :, :]
+    elif pw > 0:
+        dA_prev = dA_prev_pad[:, :, pw:-pw, :]
     else:
         dA_prev = dA_prev_pad
 
