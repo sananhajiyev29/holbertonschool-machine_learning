@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Module that performs forward propagation over a convolutional layer."""
-
 import numpy as np
 
 
@@ -23,8 +22,8 @@ def conv_forward(A_prev, W, b, activation, padding="same", stride=(1, 1)):
     sh, sw = stride
 
     if padding == 'same':
-        ph = ((h_prev - 1) * sh + kh - h_prev) // 2 + 1
-        pw = ((w_prev - 1) * sw + kw - w_prev) // 2 + 1
+        ph = max((h_prev - 1) * sh - h_prev + kh, 0) // 2
+        pw = max((w_prev - 1) * sw - w_prev + kw, 0) // 2
     else:
         ph, pw = 0, 0
 
@@ -34,8 +33,8 @@ def conv_forward(A_prev, W, b, activation, padding="same", stride=(1, 1)):
     padded = np.pad(
         A_prev, ((0, 0), (ph, ph), (pw, pw), (0, 0)), mode='constant'
     )
-    Z = np.zeros((m, oh, ow, c_new))
 
+    Z = np.zeros((m, oh, ow, c_new))
     for i in range(oh):
         for j in range(ow):
             for k in range(c_new):
