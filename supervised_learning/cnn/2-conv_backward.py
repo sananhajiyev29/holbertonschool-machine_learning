@@ -23,13 +23,23 @@ def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
     sh, sw = stride
 
     if padding == 'same':
-        ph = max((h_prev - 1) * sh - h_prev + kh, 0) // 2
-        pw = max((w_prev - 1) * sw - w_prev + kw, 0) // 2
+        ph_total = max(
+            (int(np.ceil(h_prev / sh)) - 1) * sh + kh - h_prev, 0
+        )
+        pw_total = max(
+            (int(np.ceil(w_prev / sw)) - 1) * sw + kw - w_prev, 0
+        )
+        ph_top = (ph_total + 1) // 2
+        ph_bot = ph_total - ph_top
+        pw_left = (pw_total + 1) // 2
+        pw_right = pw_total - pw_left
     else:
-        ph, pw = 0, 0
+        ph_top = ph_bot = pw_left = pw_right = 0
 
     A_prev_pad = np.pad(
-        A_prev, ((0, 0), (ph, ph), (pw, pw), (0, 0)), mode='constant'
+        A_prev,
+        ((0, 0), (ph_top, ph_bot), (pw_left, pw_right), (0, 0)),
+        mode='constant'
     )
     dA_prev_pad = np.zeros_like(A_prev_pad)
     dW = np.zeros_like(W)
@@ -39,25 +49,19 @@ def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
         for j in range(w_new):
             h_start = i * sh
             w_start = j * sw
-            h_end = min(h_start + kh, A_prev_pad.shape[1])
-            w_end = min(w_start + kw, A_prev_pad.shape[2])
-            act_kh = h_end - h_start
-            act_kw = w_end - w_start
-            region = A_prev_pad[:, h_start:h_end, w_start:w_end, :]
+            region = A_prev_pad[:, h_start:h_start + kh,
+                                 w_start:w_start + kw, :]
             dz = dZ[:, i, j, :]
-            dA_prev_pad[:, h_start:h_end, w_start:w_end, :] += (
-                np.tensordot(dz, W[:act_kh, :act_kw, :, :], axes=[[1], [3]])
+            dA_prev_pad[:, h_start:h_start + kh,
+                        w_start:w_start + kw, :] += np.tensordot(
+                dz, W, axes=[[1], [3]]
             )
-            dW[:act_kh, :act_kw, :, :] += np.tensordot(
-                region, dz, axes=[[0], [0]]
-            )
+            dW += np.tensordot(region, dz, axes=[[0], [0]])
 
-    if ph > 0 and pw > 0:
-        dA_prev = dA_prev_pad[:, ph:-ph, pw:-pw, :]
-    elif ph > 0:
-        dA_prev = dA_prev_pad[:, ph:-ph, :, :]
-    elif pw > 0:
-        dA_prev = dA_prev_pad[:, :, pw:-pw, :]
+    if padding == 'same':
+        h_end = dA_prev_pad.shape[1] - ph_bot if ph_bot > 0 else None
+        w_end = dA_prev_pad.shape[2] - pw_right if pw_right > 0 else None
+        dA_prev = dA_prev_pad[:, ph_top:h_end, pw_left:w_end, :]
     else:
         dA_prev = dA_prev_pad
 
