@@ -25,9 +25,9 @@ def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
     if padding == 'same':
         ph_total = (h_new - 1) * sh + kh - h_prev
         pw_total = (w_new - 1) * sw + kw - w_prev
-        ph_top = ph_total // 2
+        ph_top = (ph_total + 1) // 2
         ph_bot = ph_total - ph_top
-        pw_left = pw_total // 2
+        pw_left = (pw_total + 1) // 2
         pw_right = pw_total - pw_left
     else:
         ph_top = ph_bot = pw_left = pw_right = 0
