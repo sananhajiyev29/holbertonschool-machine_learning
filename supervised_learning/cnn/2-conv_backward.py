@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Module that performs back propagation over a convolutional layer."""
+import numpy as np
+
+
+def conv_backward(dZ, A_prev, W, b, padding="same", stride=(1, 1)):
+    """Performs back propagation over a convolutional layer.
+
+    Args:
+        dZ: numpy.ndarray of shape (m, h_new, w_new, c_new).
+        A_prev: numpy.ndarray of shape (m, h_prev, w_prev, c_prev).
+        W: numpy.ndarray of shape (kh, kw, c_prev, c_new).
+        b: numpy.ndarray of shape (1, 1, 1, c_new).
+        padding: 'same' or 'valid'.
+        stride: tuple of (sh, sw).
+
+    Returns:
+        dA_prev, dW, db respectively.
+    """
+    m, h_new, w_new, c_new = dZ.shape
+    m, h_prev, w_prev, c_prev = A_prev.shape
+    kh, kw, _, _ = W.shape
+    sh, sw = stride
+
+    if padding == 'same':
+        ph = max((h_prev - 1) * sh - h_prev + kh, 0) // 2
+        pw = max((w_prev - 1) * sw - w_prev + kw, 0) // 2
+    else:
+        ph, pw = 0, 0
+
+    A_prev_pad = np.pad(
+        A_prev, ((0, 0), (ph, ph), (pw, pw), (0, 0)), mode='constant'
+    )
+    dA_prev_pad = np.zeros_like(A_prev_pad)
+    dW = np.zeros_like(W)
+    db = np.sum(dZ, axis=(0, 1, 2), keepdims=True)
+
+    for i in range(h_new):
+        for j in range(w_new):
+            for k in range(c_new):
+                dA_prev_pad[
+                    :, i * sh:i * sh + kh, j * sw:j * sw + kw, :
+                ] += W[:, :, :, k] * dZ[:, i, j, k][:, None, None, None]
+                dW[:, :, :, k] += np.sum(
+                    A_prev_pad[
+                        :, i * sh:i * sh + kh, j * sw:j * sw + kw, :
+                    ] * dZ[:, i, j, k][:, None, None, None],
+                    axis=0
+                )
+
+    if ph > 0 and pw > 0:
+        dA_prev = dA_prev_pad[:, ph:-ph, pw:-pw, :]
+    elif ph > 0:
+        dA_prev = dA_prev_pad[:, ph:-ph, :, :]
+    elif pw > 0:
+        dA_prev = dA_prev_pad[:, :, pw:-pw, :]
+    else:
+        dA_prev = dA_prev_pad
+
+    return dA_prev, dW, db
