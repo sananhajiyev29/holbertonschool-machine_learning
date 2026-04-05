@@ -29,10 +29,6 @@ def pca_color(image, alphas):
 
     eigenvalues, eigenvectors = tf.linalg.eigh(cov)
 
-    idx = tf.argsort(eigenvalues, direction='DESCENDING')
-    eigenvalues = tf.gather(eigenvalues, idx)
-    eigenvectors = tf.gather(eigenvectors, idx, axis=1)
-
     alphas = tf.cast(alphas, tf.float64)
     delta = tf.linalg.matvec(eigenvectors, alphas * eigenvalues)
 
