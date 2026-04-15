@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Module that builds a transition layer."""
-import math
 from tensorflow import keras as K
 
 
@@ -17,7 +16,7 @@ def transition_layer(X, nb_filters, compression):
         The output of the transition layer and the number of filters.
     """
     init = K.initializers.HeNormal(seed=0)
-    nb_filters = math.floor(nb_filters * compression)
+    nb_filters = int(nb_filters * compression)
 
     X = K.layers.BatchNormalization(axis=3)(X)
     X = K.layers.Activation('relu')(X)
