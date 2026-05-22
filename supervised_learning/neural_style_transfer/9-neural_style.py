@@ -341,4 +341,3 @@ class NST:
                 )
 
         return best_image, best_cost
-
