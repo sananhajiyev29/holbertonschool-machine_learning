@@ -30,9 +30,6 @@ def maximization(X, g):
     if n == 0 or d == 0 or k == 0 or n_g != n:
         return None, None, None
 
-    if np.any(g < 0):
-        return None, None, None
-
     if not np.allclose(np.sum(g, axis=0), np.ones(n)):
         return None, None, None
 
