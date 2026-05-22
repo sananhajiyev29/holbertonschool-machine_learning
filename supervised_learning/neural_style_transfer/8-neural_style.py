@@ -273,4 +273,3 @@ class NST:
         gradients = tape.gradient(J_total, generated_image)
 
         return gradients, J_total, J_content, J_style
-
