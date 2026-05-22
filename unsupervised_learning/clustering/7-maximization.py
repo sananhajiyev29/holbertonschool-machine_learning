@@ -24,8 +24,6 @@ def maximization(X, g):
     k = g.shape[0]
     if n == 0 or d == 0 or k == 0 or g.shape[1] != n:
         return None, None, None
-    if np.any(g < 0) or not np.allclose(np.sum(g, axis=0), np.ones(n)):
-        return None, None, None
 
     n_k = np.sum(g, axis=1)
     if np.any(n_k == 0):
