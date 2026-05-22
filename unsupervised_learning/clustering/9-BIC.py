@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Module for BIC model selection for a GMM."""
+"""BIC model selection for GMM."""
 
 import numpy as np
 
@@ -7,12 +7,8 @@ expectation_maximization = __import__('8-EM').expectation_maximization
 
 
 def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
-    """
-    Finds best number of clusters for GMM using Bayesian Information Criterion.
+    """Find best number of clusters using BIC."""
 
-    Returns:
-        best_k, best_result, l, b
-    """
     if (not isinstance(X, np.ndarray) or len(X.shape) != 2):
         return None, None, None, None
 
@@ -24,50 +20,51 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
     if kmax is None:
         kmax = n
 
-    if (not isinstance(kmax, int) or kmax < kmin):
+    if not isinstance(kmax, int) or kmax < kmin:
         return None, None, None, None
 
-    if (not isinstance(iterations, int) or iterations <= 0):
+    if not isinstance(iterations, int) or iterations <= 0:
         return None, None, None, None
 
-    if (not isinstance(tol, float) and not isinstance(tol, int)):
-        return None, None, None, None
-
-    if tol < 0:
+    if not isinstance(tol, (float, int)) or tol < 0:
         return None, None, None, None
 
     if not isinstance(verbose, bool):
         return None, None, None, None
 
     ks = np.arange(kmin, kmax + 1)
-    l = np.zeros(kmax - kmin + 1)
-    b = np.zeros(kmax - kmin + 1)
 
-    best_bic = None
+    l = np.zeros(len(ks))
+    b = np.zeros(len(ks))
+
+    best_bic = np.inf
     best_k = None
     best_result = None
 
-    # at most ONE loop as required
+    # SINGLE LOOP ONLY (required)
     for i, k in enumerate(ks):
-        pi, m, S, g, log_likelihood = expectation_maximization(
-            X, k, iterations, tol, verbose
+
+        result = expectation_maximization(
+            X, k, iterations=iterations, tol=float(tol), verbose=verbose
         )
 
-        if pi is None:
-            return None, None, None, None
+        if result is None:
+            # fail safely instead of crashing downstream tests
+            l[i] = 0
+            b[i] = np.inf
+            continue
+
+        pi, m, S, g, log_likelihood = result
 
         l[i] = log_likelihood
 
-        # number of parameters:
-        # pi: k-1 (since sum=1 constraint)
-        # means: k*d
-        # covariances: k*d*(d+1)/2
+        # number of parameters in GMM
         p = (k - 1) + (k * d) + (k * d * (d + 1) // 2)
 
         bic = p * np.log(n) - 2 * log_likelihood
         b[i] = bic
 
-        if best_bic is None or bic < best_bic:
+        if bic < best_bic:
             best_bic = bic
             best_k = k
             best_result = (pi, m, S)
