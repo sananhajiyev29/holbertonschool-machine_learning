@@ -21,4 +21,3 @@ def kmeans(X, k):
     C = model.cluster_centers_
     clss = model.labels_
     return C, clss
-
