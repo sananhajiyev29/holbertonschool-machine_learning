@@ -19,6 +19,6 @@ def HP(Di, beta):
     num = np.exp(-Di * beta)
     sum_num = np.sum(num)
     Pi = num / sum_num
-    Hi = -np.sum(Pi * np.log2(Pi))
+    Hi = np.log2(sum_num) + beta * np.sum(Di * Pi) / np.log(2)
 
     return Hi, Pi
