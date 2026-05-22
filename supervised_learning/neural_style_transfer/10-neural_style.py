@@ -229,15 +229,15 @@ class NST:
         """Calculates the variational cost for the generated image.
 
         Args:
-            generated_image: tf.Tensor of shape (1, nh, nw, 3) containing
-                the generated image.
+            generated_image: tf.Tensor of rank 3 or 4 containing an image
+                or batch of images.
 
         Returns:
             The variational cost.
         """
         if (not isinstance(generated_image, (tf.Tensor, tf.Variable)) or
-                len(generated_image.shape) != 4):
-            raise TypeError("generated_image must be a tensor of rank 4")
+                len(generated_image.shape) not in (3, 4)):
+            raise TypeError("image must be a tensor of rank 3 or 4")
 
         return tf.reduce_sum(tf.image.total_variation(generated_image))
 
