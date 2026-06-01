@@ -17,20 +17,18 @@ def autoencoder(input_dims, hidden_layers, latent_dims):
     Returns:
         Tuple of (encoder, decoder, auto).
     """
-    encoder_input = keras.Input(shape=(input_dims,))
-    x = encoder_input
-    for nodes in hidden_layers:
-        x = keras.layers.Dense(nodes, activation='relu')(x)
-
-    mean = keras.layers.Dense(latent_dims, activation=None)(x)
-    log_var = keras.layers.Dense(latent_dims, activation=None)(x)
-
     def sampling(args):
         """Samples from the latent distribution."""
         mu, lv = args
         epsilon = K.random_normal(shape=K.shape(mu))
         return mu + K.exp(lv / 2) * epsilon
 
+    encoder_input = keras.Input(shape=(input_dims,))
+    x = encoder_input
+    for nodes in hidden_layers:
+        x = keras.layers.Dense(nodes, activation='relu')(x)
+    mean = keras.layers.Dense(latent_dims, activation=None)(x)
+    log_var = keras.layers.Dense(latent_dims, activation=None)(x)
     z = keras.layers.Lambda(sampling)([mean, log_var])
     encoder = keras.Model(encoder_input, [z, mean, log_var])
 
