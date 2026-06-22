@@ -31,3 +31,6 @@ to predict the closing price of the following hour.
   hours to predict the next hour's close.
 
 ## Usage
+./preprocess_data.py
+
+./forecast_btc.py
