@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """Module that creates a transformer encoder."""
 import tensorflow as tf
-
-positional_encoding = __import__(
-    '4-positional_encoding'
-).positional_encoding
-EncoderBlock = __import__(
-    '7-transformer_encoder_block'
-).EncoderBlock
+positional_encoding = __import__('4-positional_encoding').positional_encoding
+EncoderBlock = __import__('7-transformer_encoder_block').EncoderBlock
 
 
 class Encoder(tf.keras.layers.Layer):
@@ -28,7 +23,16 @@ class Encoder(tf.keras.layers.Layer):
         self.dropout = tf.keras.layers.Dropout(drop_rate)
 
     def call(self, x, training, mask):
-        """Forward pass for the encoder."""
+        """Forward propagation for the encoder.
+
+        Args:
+            x: Tensor of shape (batch, input_seq_len).
+            training: Boolean indicating whether the model is training.
+            mask: Mask to be applied for multi-head attention.
+
+        Returns:
+            Tensor of shape (batch, input_seq_len, dm).
+        """
         seq_len = tf.shape(x)[1]
 
         x = self.embedding(x)
