@@ -32,18 +32,18 @@ class Dataset:
         Returns:
             Tuple of (tokenizer_pt, tokenizer_en).
         """
-        tokenizer_pt = transformers.AutoTokenizer.from_pretrained(
-            'neuralmind/bert-base-portuguese-cased', use_fast=True
-        )
-        tokenizer_en = transformers.AutoTokenizer.from_pretrained(
-            'bert-base-uncased', use_fast=True
-        )
-
         pt_sentences = []
         en_sentences = []
-        for pt, en in data.as_numpy_iterator():
-            pt_sentences.append(pt.decode('utf-8'))
-            en_sentences.append(en.decode('utf-8'))
+        for pt, en in data:
+            pt_sentences.append(pt.numpy().decode('utf-8'))
+            en_sentences.append(en.numpy().decode('utf-8'))
+
+        tokenizer_pt = transformers.BertTokenizerFast.from_pretrained(
+            'neuralmind/bert-base-portuguese-cased'
+        )
+        tokenizer_en = transformers.BertTokenizerFast.from_pretrained(
+            'bert-base-uncased'
+        )
 
         tokenizer_pt = tokenizer_pt.train_new_from_iterator(
             pt_sentences, vocab_size=2 ** 13
