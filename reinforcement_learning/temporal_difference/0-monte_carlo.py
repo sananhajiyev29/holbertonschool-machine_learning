@@ -37,14 +37,9 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1,
         episode_data = np.array(episode_data, dtype=int)
         G = 0
 
-        for state, reward in reversed(episode_data):
+        for i in reversed(range(len(episode_data))):
+            state, reward = episode_data[i]
             G = gamma * G + reward
-
-            if state not in episode_data[:episode_data.shape[0], 0]:
-                V[state] = V[state] + alpha * (G - V[state])
-
-        for i, (state, reward) in enumerate(episode_data):
-            if state not in episode_data[:i, 0]:
-                V[state] = V[state] + alpha * (G - V[state])
+            V[state] = V[state] + alpha * (G - V[state])
 
     return V
