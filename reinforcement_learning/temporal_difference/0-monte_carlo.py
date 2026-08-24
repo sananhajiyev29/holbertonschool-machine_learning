@@ -40,6 +40,8 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1,
         for i in reversed(range(len(episode_data))):
             state, reward = episode_data[i]
             G = gamma * G + reward
-            V[state] = V[state] + alpha * (G - V[state])
+
+            if state not in episode_data[:i, 0]:
+                V[state] = V[state] + alpha * (G - V[state])
 
     return V
